@@ -1,0 +1,279 @@
+<template>
+  <PageWrapper contentClass="flex items-start">
+    <card class="!mr-4 dep-tree">
+      <Form :model="queryParams" ref="formRef" layout="horizontal" class="m-form">
+#foreach($column in $columns)
+#if($column.query)
+#set($dictType=$column.dictType)
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if($column.htmlType == "input")
+        <FormItem label="${comment}" name="${column.javaField}">
+          <Input v-model:value="queryParams.${column.javaField}" allowClear placeholder="请输入${comment}" :onPressEnter="handleReload"/>
+        </FormItem>
+#elseif(($column.htmlType == "select" || $column.htmlType == "radio") && "" != $dictType)
+#set($select=true)
+        <FormItem label="${comment}" name="${column.javaField}">
+          <Select
+            v-model:value="queryParams.${column.javaField}"
+            showSearch
+            allowClear
+            :filterOption="filterOption"
+            placeholder="请选择${comment}"
+          >
+            <SelectOption v-for="(item, key) in ${column.javaField}Options" :key="key" :value="item.dictValue">
+              {{ item.dictLabel }}
+            </SelectOption>
+          </Select>
+        </FormItem>
+#elseif(($column.htmlType == "select" || $column.htmlType == "radio") && $dictType)
+#set($select=true)
+        <FormItem label="${comment}" name="${column.javaField}">
+          <Select
+            v-model:value="queryParams.${column.javaField}"
+            showSearch
+            allowClear
+            :filterOption="filterOption"
+            placeholder="请选择${comment}"
+          >
+            <SelectOption value="">
+              请选择字典生成
+            </SelectOption>
+          </Select>
+        </FormItem>
+#elseif($column.htmlType == "datetime" && $column.queryType != "BETWEEN")
+#set($datePicker=true)
+        <FormItem label="${comment}" name="${column.javaField}">
+          <DatePicker v-model:value="queryParams.${column.javaField}" />
+        </FormItem>
+</el-form-item>
+#elseif($column.htmlType == "datetime" && $column.queryType == "BETWEEN")
+#set($daterange=true)
+        <FormItem label="${comment}" name="${column.javaField}">
+          <RangePicker v-model:value="daterange${AttrName}" />
+        </FormItem>
+#end
+#end
+#end
+        <a-button type="primary" class="ml-4" @click="handleReload">搜索</a-button>
+        <a-button class="ml-4" @click="resetQuery">重置</a-button>
+      </Form>
+      <BasicTable @register="registerTable">
+        <template #action="{ record }">
+          <div>
+            <a-button type="link" class="text-btn" @click="handleEdit(record)"
+            ><Icon icon="ant-design:edit-filled" />编辑</a-button
+            >
+            <Popconfirm title="您确定删除吗" @confirm="handleDelete(record)">
+              <a-button type="link" danger class="text-btn"
+              ><Icon icon="ic:outline-delete-outline" />删除</a-button
+              >
+            </Popconfirm>
+          </div>
+        </template>
+      </BasicTable>
+    </card>
+  </PageWrapper>
+</template>
+
+<script lang="ts">
+  import { defineComponent, reactive, toRefs, watch, computed } from 'vue';
+  import {
+    Form,
+    Input,
+    Card,
+    Popconfirm,
+    message,
+#if($select)
+    Select,
+    SelectOption,
+#end
+#if($daterange)
+  RangePicker,
+#end
+#if($datePicker)
+    DatePicker,
+#end
+  } from 'ant-design-vue';
+  import { PageWrapper } from '/@/components/Page';
+  import { BasicTable, BasicColumn, useTable } from '/@/components/Table';
+  import { Icon } from '/@/components/Icon';
+  import { BasicData } from '/@/api/model/baseModel';
+#set($api=$BusinessName.substring(0,1).toLowerCase() + ${BusinessName.substring(1)})
+  import { get${BusinessName}List, del${BusinessName} } from '/@/api/${moduleName}/$api';
+  import { ${BusinessName}Model } from '/@/api/${moduleName}/model/${api}Model';
+  import { useSelect } from '/@/hooks/component/useSelect';
+#if($select)
+  import { getDicts } from '/@/api/sys/dict';
+  import { DictDataModel } from '/@/api/sys/model/dictModel';
+  import { selectDictLabel } from '/@/utils'
+#end
+
+  interface DataModel extends BasicData {
+#foreach ($column in $columns)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if(${column.dictType} != '')
+// $comment字典
+    ${column.javaField}Options: Recordable[],
+#elseif($column.htmlType == "datetime" && $column.queryType == "BETWEEN")
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+// $comment时间范围
+    daterange${AttrName}: Date[],
+#end
+#end
+  }
+
+  export default defineComponent({
+    components: {
+      PageWrapper,
+      Form,
+      FormItem: Form.Item,
+      Input,
+      Card,
+      BasicTable,
+      Icon,
+      Popconfirm,
+#if($select)
+      Select,
+      SelectOption,
+#end
+#if($daterange)
+      RangePicker,
+#end
+#if($datePicker)
+      DatePicker,
+#end
+    },
+    setup() {
+      const myData = reactive<BasicData>({
+        queryParams: {},
+#foreach ($column in $columns)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if(${column.dictType} != '')
+// $comment字典
+        ${column.javaField}Options: [],
+#elseif($column.htmlType == "datetime" && $column.queryType == "BETWEEN")
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+// $comment时间范围
+        daterange${AttrName}: [],
+#end
+#end
+      });
+
+      const columns: BasicColumn[] = [
+#foreach($column in $columns)
+#set($javaField=$column.javaField)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if($column.pk)
+        { title: '${comment}', dataIndex: '${javaField}', width: 110 },
+#elseif($column.list && $column.htmlType == "datetime")
+        { title: '${comment}', dataIndex: '${javaField}', format: 'YYYY-MM-DD', width: 110 },
+#elseif($column.list && "" != $column.dictType)
+        {
+          title: '${comment}',
+          dataIndex: '${javaField}',
+          width: 110,
+          format: (text: string) => {
+            return selectDictLabel#if($column.htmlType == "checkbox")s#end(myData.${column.javaField}Options, text);
+          },
+        },
+#elseif($column.list && "" != $javaField)
+        { title: '${comment}', dataIndex: '${javaField}', width: 110 },
+#end
+#end
+        { title: '操作', dataIndex: 'action', slots: { customRender: 'action' }, width: 250 },
+      ];
+
+      const [registerTable, { reload, getSelectRowKeys, setLoading }] = useTable({
+        columns: columns,
+        rowKey: '${pkColumn.javaField}',
+        bordered: true,
+        api: get${BusinessName}List,
+        showTableSetting: true,
+        rowSelection: { type: 'checkbox' },
+        beforeFetch: () => {
+#foreach ($column in $columns)
+#if($column.htmlType == "datetime" && $column.queryType == "BETWEEN")
+          myData.queryParams.params = {};
+#break
+#end
+#end
+#foreach ($column in $columns)
+#if($column.htmlType == "datetime" && $column.queryType == "BETWEEN")
+#set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
+          if (null != myData.daterange${AttrName} && '' != myData.daterange${AttrName}) {
+            myData.queryParams.params['begin${AttrName}'] = myData.daterange${AttrName}[0];
+            myData.queryParams.params['end${AttrName}'] = myData.daterange${AttrName}[1];
+          }
+#end
+#end
+          return myData.queryParams;
+        },
+      });
+
+      const handleEdit = (row: ${BusinessName}Model) => {
+      //
+      };
+
+      const handleReload = () => {
+        reload({ page: 1 });
+      };
+
+      const handleDelete = (row: ${BusinessName}Model) => {
+        setLoading(false);
+        const ids = row.${pkColumn.javaField} || getSelectRowKeys();
+        del${BusinessName}(ids)
+          .then(() => {
+            message.success('删除成功');
+            reload();
+          })
+          .catch(() => {
+            setLoading(false);
+          });
+      };
+
+      const resetQuery = () => {
+        myData.queryParams = {}
+      };
+
+#foreach ($column in $columns)
+#if(${column.dictType} != '')
+      getDicts('${column.dictType}').then((response) => {
+        myData.${column.javaField}Options = response;
+      });
+#end
+#end
+
+      const { filterOption } = useSelect();
+      return {
+        handleEdit,
+        handleDelete,
+        handleReload,
+        registerTable,
+        ...toRefs(myData),
+        filterOption,
+        resetQuery,
+      }
+    },
+  });
+</script>

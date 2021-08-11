@@ -1,0 +1,27 @@
+import type { BasicFetchResult } from '/@/api/model/baseModel';
+
+export interface ${BusinessName}Model {
+#foreach ($column in $columns)
+#if(!$table.isSuperColumn($column.javaField))
+/** $column.columnComment */
+#if($column.javaType == 'String')
+#set($type='string | null')
+#elseif($column.javaType == 'Boolean')
+#set($type='boolean | null')
+#elseif($column.javaType == 'Long' || $column.javaType == 'Integer'
+|| $column.javaType == 'Double' || $column.javaType == 'Float' || $column.javaType == 'Float'
+|| $column.javaType == 'BigDecimal')
+#set($type='number | null')
+#else
+#set($type=$column.javaType + ' | null')
+#end
+  $column.javaField?: $type;
+#end
+#end
+#if($table.sub)
+/** $table.subTable.functionName信息 */
+  ${subclassName}?: ${subClassName}[] ;
+#end
+}
+
+export type ${BusinessName}ListModel = BasicFetchResult<${BusinessName}Model>;

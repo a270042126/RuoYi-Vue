@@ -1,0 +1,40 @@
+import { defHttp } from '/@/utils/http/axios';
+import { BasicParams } from '/@/api/model/baseModel';
+import { ${businessName}Model, ${BusinessName}ListModel } from './model/${businessName}.ts'
+#if($pkColumn.javaType == 'String')
+    #set($type='string | null')
+#elseif($pkColumn.javaType == 'Long' || $pkColumn.javaType == 'Integer')
+    #set($type='number | null')
+#else
+    #set($type=$pkColumn.javaType + ' | null')
+#end
+enum Api {
+  list = '/${moduleName}/${businessName}/list',
+  ${businessName} = '/${moduleName}/${businessName}',
+  export = '/${moduleName}/${businessName}/export',
+}
+// 查询${functionName}列表
+export const get${BusinessName}List = (params: BasicParams) => {
+  return defHttp.get<${BusinessName}ListModel>({ url: Api.list, params });
+};
+// 查询${functionName}详细
+export const get${BusinessName} = (${pkColumn.javaField}: $type) => {
+    return defHttp.get<${BusinessName}ListModel>({ url: Api.${businessName} + '/' + ${pkColumn.javaField} });
+};
+// 新增${functionName}
+export const add${BusinessName} = (data: ${businessName}Model) => {
+    return defHttp.post<${BusinessName}ListModel>({ url: Api.${businessName}, data });
+};
+// 修改${functionName}
+export const add${BusinessName} = (data: ${businessName}Model) => {
+    return defHttp.put<${BusinessName}ListModel>({ url: Api.${businessName}, data });
+};
+// 删除${functionName}
+export const del${BusinessName} = (id: ${pkColumn.javaField}) => {
+    return defHttp.delete<${BusinessName}ListModel>({ url: Api.${businessName} + '/' + ${pkColumn.javaField} });
+};
+// 导出${functionName}
+export const export${BusinessName} = (params: BasicParams) => {
+    return defHttp.getAjax<${BusinessName}ListModel>({ url: Api.${businessName} + '/export', params });
+};
+
