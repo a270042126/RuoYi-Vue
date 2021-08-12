@@ -40,7 +40,7 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
     @Override
     public ${ClassName} select${ClassName}ById(${pkColumn.javaType} ${pkColumn.javaField})
     {
-        return ${className}Mapper.select${ClassName}ById(${pkColumn.javaField});
+        return ${className}Mapper.selectById(${pkColumn.javaField});
     }
 
     /**
@@ -73,11 +73,11 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
 #end
 #end
 #if($table.sub)
-        int rows = ${className}Mapper.insert${ClassName}(${className});
+        int rows = ${className}Mapper.insert(${className});
         insert${subClassName}(${className});
         return rows;
 #else
-        return ${className}Mapper.insert${ClassName}(${className});
+        return ${className}Mapper.insert(${className});
 #end
     }
 
@@ -102,7 +102,7 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
         ${className}Mapper.delete${subClassName}By${subTableFkClassName}(${className}.get${pkColumn.capJavaField}());
         insert${subClassName}(${className});
 #end
-        return ${className}Mapper.update${ClassName}(${className});
+        return ${className}Mapper.updateById(${className});
     }
 
     /**
@@ -135,7 +135,7 @@ public class ${ClassName}ServiceImpl implements I${ClassName}Service
 #if($table.sub)
         ${className}Mapper.delete${subClassName}By${subTableFkClassName}(${pkColumn.javaField});
 #end
-        return ${className}Mapper.delete${ClassName}ById(${pkColumn.javaField});
+        return ${className}Mapper.deleteById(${pkColumn.javaField});
     }
 #if($table.sub)
 

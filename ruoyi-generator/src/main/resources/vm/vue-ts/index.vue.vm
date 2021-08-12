@@ -63,6 +63,17 @@
         <a-button type="primary" class="ml-4" @click="handleReload">搜索</a-button>
         <a-button class="ml-4" @click="resetQuery">重置</a-button>
       </Form>
+      <div class="flex mb-4 mt-2">
+        <a-button type="primary" class="mr-4" @click="handleEdit()">
+          <Icon icon="ant-design:file-add-outlined" />添加用户</a-button
+        >
+        <Popconfirm title="您确定删除吗" @confirm="handleDelete">
+          <a-button type="primary" danger><Icon icon="ic:outline-delete-outline" />删除</a-button>
+        </Popconfirm>
+        <a-button type="primary" class="ml-4" @click="handleExport()">
+          <Icon icon="ant-design:vertical-align-bottom-outlined" />导出</a-button
+        >
+      </div>
       <BasicTable @register="registerTable">
         <template #action="{ record }">
           <div>
@@ -105,14 +116,14 @@
   import { Icon } from '/@/components/Icon';
   import { BasicData } from '/@/api/model/baseModel';
 #set($api=$BusinessName.substring(0,1).toLowerCase() + ${BusinessName.substring(1)})
-  import { get${BusinessName}List, del${BusinessName} } from '/@/api/${moduleName}/$api';
+  import { get${BusinessName}List, del${BusinessName}, export${BusinessName} } from '/@/api/${moduleName}/$api';
   import { ${BusinessName}Model } from '/@/api/${moduleName}/model/${api}Model';
   import { useSelect } from '/@/hooks/component/useSelect';
 #if($select)
   import { getDicts } from '/@/api/sys/dict';
-  import { DictDataModel } from '/@/api/sys/model/dictModel';
   import { selectDictLabel } from '/@/utils'
 #end
+  import { download } from '/@/utils';
 
   interface DataModel extends BasicData {
 #foreach ($column in $columns)
@@ -234,11 +245,14 @@
       const handleEdit = (row: ${BusinessName}Model) => {
       //
       };
-
+      const handleExport = () => {
+        export${BusinessName}(myData.queryParams).then((res) => {
+          download(res);
+        });
+      };
       const handleReload = () => {
         reload({ page: 1 });
       };
-
       const handleDelete = (row: ${BusinessName}Model) => {
         setLoading(false);
         const ids = row.${pkColumn.javaField} || getSelectRowKeys();
@@ -251,11 +265,10 @@
             setLoading(false);
           });
       };
-
       const resetQuery = () => {
-        myData.queryParams = {}
+        myData.queryParams = {};
+        handleReload();
       };
-
 #foreach ($column in $columns)
 #if(${column.dictType} != '')
       getDicts('${column.dictType}').then((response) => {
@@ -263,9 +276,9 @@
       });
 #end
 #end
-
       const { filterOption } = useSelect();
       return {
+        handleExport,
         handleEdit,
         handleDelete,
         handleReload,
