@@ -26,7 +26,7 @@ export const add${BusinessName} = (data: ${businessName}Model) => {
     return defHttp.post<${BusinessName}ListModel>({ url: Api.${businessName}, data });
 };
 // 修改${functionName}
-export const add${BusinessName} = (data: ${businessName}Model) => {
+export const update${BusinessName} = (data: ${businessName}Model) => {
     return defHttp.put<${BusinessName}ListModel>({ url: Api.${businessName}, data });
 };
 // 删除${functionName}

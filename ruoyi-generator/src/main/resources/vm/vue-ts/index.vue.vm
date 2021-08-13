@@ -89,6 +89,7 @@
         </template>
       </BasicTable>
     </card>
+    <AuData @register="register1" @onRefresh="reload" />
   </PageWrapper>
 </template>
 
@@ -114,14 +115,16 @@
   import { PageWrapper } from '/@/components/Page';
   import { BasicTable, BasicColumn, useTable } from '/@/components/Table';
   import { Icon } from '/@/components/Icon';
+  import AuData from './components/AuData.vue';
+  import { useModal } from '/@/components/Modal';
   import { BasicData } from '/@/api/model/baseModel';
 #set($api=$BusinessName.substring(0,1).toLowerCase() + ${BusinessName.substring(1)})
   import { get${BusinessName}List, del${BusinessName}, export${BusinessName} } from '/@/api/${moduleName}/$api';
   import { ${BusinessName}Model } from '/@/api/${moduleName}/model/${api}Model';
-  import { useSelect } from '/@/hooks/component/useSelect';
 #if($select)
+  import { useSelect } from '/@/hooks/component/useSelect';
   import { getDicts } from '/@/api/sys/dict';
-  import { selectDictLabel } from '/@/utils'
+  import { selectDictLabel, DictDataModel } from '/@/utils'
 #end
   import { download } from '/@/utils';
 
@@ -135,7 +138,7 @@
 #end
 #if(${column.dictType} != '')
 // $comment字典
-    ${column.javaField}Options: Recordable[],
+    ${column.javaField}Options: DictDataModel[],
 #elseif($column.htmlType == "datetime" && $column.queryType == "BETWEEN")
 #set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
 // $comment时间范围
@@ -164,6 +167,7 @@
 #if($datePicker)
       DatePicker,
 #end
+      AuData,
     },
     setup() {
       const myData = reactive<BasicData>({
@@ -242,9 +246,18 @@
         },
       });
 
+      const [register1, { openModal: openModal1, setModalProps: setModalProps1 }] = useModal();
+
       const handleEdit = (row: ${BusinessName}Model) => {
-      //
+        if (row) {
+          setModalProps1({ title: '修改${functionName}' });
+        } else {
+          row = {};
+          setModalProps1({ title: '添加${functionName}' });
+        }
+        openModal1(true, row);
       };
+
       const handleExport = () => {
         export${BusinessName}(myData.queryParams).then((res) => {
           download(res);
@@ -276,7 +289,9 @@
       });
 #end
 #end
+#if($select)
       const { filterOption } = useSelect();
+#end
       return {
         handleExport,
         handleEdit,
@@ -284,8 +299,11 @@
         handleReload,
         registerTable,
         ...toRefs(myData),
-        filterOption,
         resetQuery,
+#if($select)
+        filterOption,
+#end
+        register1,
       }
     },
   });
