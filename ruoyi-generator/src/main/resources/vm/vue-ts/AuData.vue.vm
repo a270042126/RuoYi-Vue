@@ -221,17 +221,19 @@
       const [register, { closeModal, changeLoading }] = useModalInner((data: ${BusinessName}Model) => {
         myData.form = {};
         const id = data.${pkColumn.javaField} ? data.${pkColumn.javaField} : null;
-        changeLoading(true);
-        get${BusinessName}(id)
-          .then((res) => {
-            if (res) {
-              myData.form = res;
-            }
-            changeLoading(false);
-          })
-          .catch(() => {
-            changeLoading(false);
-          });
+        if (id) {
+          changeLoading(true);
+          get${BusinessName}(id)
+            .then((res) => {
+              if (res) {
+                myData.form = res;
+              }
+              changeLoading(false);
+            })
+            .catch(() => {
+              changeLoading(false);
+            });
+        }
       });
       const onSubmit = async () => {
         const data = await formRef.value.validateFields();
