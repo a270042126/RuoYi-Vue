@@ -1,5 +1,5 @@
 <template>
-  <BasicModal v-bind="$attrs" title="用户" width="700px" @register="register" @ok="onSubmit">
+  <BasicModal v-bind="$attrs" title="${functionName}" width="700px" @register="register" @ok="onSubmit">
     <Form :model="form" :rules="rules" ref="formRef" layout="horizontal" class="m-form">
 #foreach($column in $columns)
 #set($field=$column.javaField)
@@ -29,7 +29,7 @@
         // 富文本
       </FormItem>
 #elseif($column.htmlType == "select" && "" != $dictType)
-#set($select=true)
+#set($select=1)
       <FormItem label="${comment}" name="${field}">
         <Select
             v-model:value="form.${field}"
@@ -44,7 +44,7 @@
         </Select>
       </FormItem>
 #elseif($column.htmlType == "select" && $dictType)
-#set($select=true)
+#set($select=1)
       <FormItem label="${comment}" name="${field}">
         <Select
             v-model:value="form.${field}"
@@ -59,7 +59,7 @@
         </Select>
       </FormItem>
 #elseif($column.htmlType == "checkbox" && "" != $dictType)
-#set($checkbox=true)
+#set($checkbox=1)
       <FormItem label="${comment}" name="${field}">
         <Checkbox.Group v-model:value="form.${field}">
           <Checkbox  v-for="dict in ${field}Options" :key="dict.dictValue" :value="dict.dictValue">
@@ -68,7 +68,7 @@
         </Checkbox.Group>
       </FormItem>
 #elseif($column.htmlType == "checkbox" && $dictType)
-#set($checkbox=true)
+#set($checkbox=1)
       <FormItem label="${comment}" name="${field}">
         <Checkbox.Group v-model:value="form.${field}">
           <Checkbox>
@@ -77,7 +77,7 @@
         </Checkbox.Group>
       </FormItem>
 #elseif($column.htmlType == "radio" && "" != $dictType)
-#set($radio=true)
+#set($radio=1)
       <FormItem label="${comment}" name="${field}">
         <RadioGroup v-model:value="form.${field}">
           <Radio  v-for="dict in ${field}Options" :key="dict.dictValue" #if($column.javaType == "Integer" || $column.javaType == "Long"):value="parseInt(dict.dictValue)"#else:value="dict.dictValue"#end>
@@ -86,7 +86,7 @@
         </RadioGroup>
       </FormItem>
 #elseif($column.htmlType == "radio" && $dictType)
-#set($radio=true)
+#set($radio=1)
       <FormItem label="${comment}" name="${field}">
         <RadioGroup v-model:value="form.${field}">
           <Radio>
@@ -95,7 +95,7 @@
         </RadioGroup>
       </FormItem>
 #elseif($column.htmlType == "datetime")
-#set($datetime=true)
+#set($datetime=1)
       <FormItem label="${comment}" name="${field}">
         <DatePicker v-model:value="form.${field}" />
       </FormItem>
@@ -113,16 +113,16 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive, computed, watchEffect, toRefs, ref } from 'vue';
+  import { defineComponent, reactive, toRefs, ref } from 'vue';
   import { BasicModal, useModalInner } from '/@/components/Modal';
   import {
     Form,
     Input,
-#if($select)
+#if($select == 1)
     Select,
     SelectOption,
 #end
-#if($checkbox)
+#if($checkbox == 1)
     Checkbox,
 #end
 #if($textarea)
@@ -132,20 +132,19 @@
     RadioGroup,
     Radio,
 #end
-#if($datetime)
+#if($datetime == 1)
     DatePicker,
 #end
     message,
   } from 'ant-design-vue';
-  import { get${BusinessName}, update${BusinessName}, add${BusinessName} } from '/@/api/${moduleName}/$api';
-  import { ${BusinessName}Model } from '/@/api/${moduleName}/model/${api}Model';
-#if($select || $checkbox || $radio)
+  import { get${BusinessName}, update${BusinessName}, add${BusinessName} } from '/@/api/${moduleName}/${businessName}';
+  import { ${BusinessName}Model } from '/@/api/${moduleName}/model/${businessName}Model';
+#if( $select == 1 || $checkbox == 1 || $radio == 1)
   import { useSelect } from '/@/hooks/component/useSelect';
   import { getDicts } from '/@/api/sys/dict';
   import {  DictDataModel } from '/@/utils'
 #end
-
-  interface FormModel extends ${BusinessName}Model {}
+  type FormModel = ${BusinessName}Model;
   interface DataModel {
     form: FormModel;
 #foreach ($column in $columns)
@@ -171,9 +170,8 @@
 #else
 #set($comment=$column.columnComment)
 #end
-    $column.javaField: [
-    { required: true, message: "$comment不能为空", trigger: #if($column.htmlType == "select")"change"#else"blur"#end }
-    ]#if($velocityCount != $columns.size()),#end
+    $column.javaField: [{ required: true, message: '$comment不能为空', trigger: #if($column.htmlType == "select")'change'#else'blur'#end }]#if($velocityCount != $columns.size()),
+#end
 #end
 #end
   };
@@ -188,14 +186,14 @@
       Select,
       SelectOption,
 #end
-#if($checkbox)
+#if($checkbox == 1)
       Checkbox,
 #end
 #if($radio)
       RadioGroup,
       Radio,
 #end
-#if($datetime)
+#if($datetime == 1)
       DatePicker,
 #end
 #if($textarea)
@@ -203,7 +201,7 @@
 #end
     },
     emits: ['onRefresh', 'register'],
-    setup(context) {
+    setup(_, context) {
       const formRef = ref();
       const myData = reactive<DataModel>({
         form: {},
@@ -226,8 +224,8 @@
         changeLoading(true);
         get${BusinessName}(id)
           .then((res) => {
-            if (res.data) {
-              myData.form = res.data;
+            if (res) {
+              myData.form = res;
             }
             changeLoading(false);
           })
@@ -273,11 +271,11 @@
       });
 #end
 #end
-#if($select || $checkbox || $radio)
+#if($select == 1 || $checkbox == 1 || $radio == 1)
       const { filterOption } = useSelect();
 #end
       return {
-#if($select || $checkbox || $radio)
+#if($select == 1 || $checkbox == 1 || $radio == 1)
         filterOption,
 #end
         rules,

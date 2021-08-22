@@ -1,6 +1,6 @@
 import { defHttp } from '/@/utils/http/axios';
 import { BasicParams } from '/@/api/model/baseModel';
-import { ${businessName}Model, ${BusinessName}ListModel } from './model/${businessName}.ts'
+import { ${BusinessName}Model, ${BusinessName}ListModel } from './model/${businessName}Model';
 #if($pkColumn.javaType == 'String')
     #set($type='string | null')
 #elseif($pkColumn.javaType == 'Long' || $pkColumn.javaType == 'Integer')
@@ -19,22 +19,21 @@ export const get${BusinessName}List = (params: BasicParams) => {
 };
 // 查询${functionName}详细
 export const get${BusinessName} = (${pkColumn.javaField}: $type) => {
-    return defHttp.get<${BusinessName}ListModel>({ url: Api.${businessName} + '/' + ${pkColumn.javaField} });
+  return defHttp.get<${BusinessName}Model>({ url: Api.${businessName} + '/' + ${pkColumn.javaField} });
 };
 // 新增${functionName}
-export const add${BusinessName} = (data: ${businessName}Model) => {
-    return defHttp.post<${BusinessName}ListModel>({ url: Api.${businessName}, data });
+export const add${BusinessName} = (data: ${BusinessName}Model) => {
+  return defHttp.post({ url: Api.${businessName}, data });
 };
 // 修改${functionName}
-export const update${BusinessName} = (data: ${businessName}Model) => {
-    return defHttp.put<${BusinessName}ListModel>({ url: Api.${businessName}, data });
+export const update${BusinessName} = (data: ${BusinessName}Model) => {
+  return defHttp.put({ url: Api.${businessName}, data });
 };
 // 删除${functionName}
-export const del${BusinessName} = (id: ${pkColumn.javaField}) => {
-    return defHttp.delete<${BusinessName}ListModel>({ url: Api.${businessName} + '/' + ${pkColumn.javaField} });
+export const del${BusinessName} = (id: any | any[]) => {
+  return defHttp.delete({ url: Api.${businessName} + '/' + id });
 };
 // 导出${functionName}
 export const export${BusinessName} = (params: BasicParams) => {
-    return defHttp.getAjax<${BusinessName}ListModel>({ url: Api.${businessName} + '/export', params });
+  return defHttp.get<string>({ url: Api.${businessName} + '/export', params });
 };
-

@@ -3,7 +3,7 @@ import type { BasicFetchResult } from '/@/api/model/baseModel';
 export interface ${BusinessName}Model {
 #foreach ($column in $columns)
 #if(!$table.isSuperColumn($column.javaField))
-/** $column.columnComment */
+  /** $column.columnComment */
 #if($column.javaType == 'String')
 #set($type='string | null')
 #elseif($column.javaType == 'Boolean')
@@ -19,9 +19,9 @@ export interface ${BusinessName}Model {
 #end
 #end
 #if($table.sub)
-/** $table.subTable.functionName信息 */
+  /** $table.subTable.functionName信息 */
   ${subclassName}?: ${subClassName}[] ;
 #end
 }
 
-export type ${BusinessName}ListModel = BasicFetchResult<${BusinessName}Model>;
+export type ${BusinessName}ListModel = BasicFetchResult<${BusinessName}Model[]>;

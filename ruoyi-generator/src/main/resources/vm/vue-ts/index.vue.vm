@@ -1,6 +1,6 @@
 <template>
   <PageWrapper contentClass="flex items-start">
-    <card class="!mr-4 dep-tree">
+    <card class="my-card">
       <Form :model="queryParams" ref="formRef" layout="horizontal" class="m-form">
 #foreach($column in $columns)
 #if($column.query)
@@ -14,7 +14,12 @@
 #end
 #if($column.htmlType == "input")
         <FormItem label="${comment}" name="${column.javaField}">
-          <Input v-model:value="queryParams.${column.javaField}" allowClear placeholder="请输入${comment}" :onPressEnter="handleReload"/>
+          <Input
+            v-model:value="queryParams.${column.javaField}"
+            allowClear
+            placeholder="请输入${comment}"
+            :onPressEnter="handleReload"
+          />
         </FormItem>
 #elseif(($column.htmlType == "select" || $column.htmlType == "radio") && "" != $dictType)
 #set($select=true)
@@ -77,13 +82,13 @@
       <BasicTable @register="registerTable">
         <template #action="{ record }">
           <div>
-            <a-button type="link" class="text-btn" @click="handleEdit(record)"
-            ><Icon icon="ant-design:edit-filled" />编辑</a-button
-            >
+            <a-button type="link" class="text-btn" @click="handleEdit(record)">
+              <Icon icon="ant-design:edit-filled" />编辑
+            </a-button>
             <Popconfirm title="您确定删除吗" @confirm="handleDelete(record)">
-              <a-button type="link" danger class="text-btn"
-              ><Icon icon="ic:outline-delete-outline" />删除</a-button
-              >
+              <a-button type="link" danger class="text-btn">
+                <Icon icon="ic:outline-delete-outline" />删除
+              </a-button>
             </Popconfirm>
           </div>
         </template>
@@ -94,7 +99,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, reactive, toRefs, watch, computed } from 'vue';
+  import { defineComponent, reactive, toRefs } from 'vue';
   import {
     Form,
     Input,
@@ -145,7 +150,7 @@
     daterange${AttrName}: Date[],
 #end
 #end
-  }
+  };
 
   export default defineComponent({
     components: {
@@ -170,7 +175,7 @@
       AuData,
     },
     setup() {
-      const myData = reactive<BasicData>({
+      const myData = reactive<DataModel>({
         queryParams: {},
 #foreach ($column in $columns)
 #set($parentheseIndex=$column.columnComment.indexOf("（"))
@@ -293,6 +298,7 @@
       const { filterOption } = useSelect();
 #end
       return {
+        reload,
         handleExport,
         handleEdit,
         handleDelete,
@@ -304,7 +310,7 @@
         filterOption,
 #end
         register1,
-      }
+      };
     },
   });
 </script>

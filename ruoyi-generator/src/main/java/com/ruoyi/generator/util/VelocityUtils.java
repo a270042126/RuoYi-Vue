@@ -135,6 +135,7 @@ public class VelocityUtils
         templates.add("vm/sql/sql.vm");
         templates.add("vm/vue-ts/api.ts.vm");
         templates.add("vm/vue-ts/model.ts.vm");
+        templates.add("vm/vue-ts/AuData.vue.vm");
         if (GenConstants.TPL_CRUD.equals(tplCategory))
         {
             templates.add("vm/vue-ts/index.vue.vm");
@@ -209,7 +210,10 @@ public class VelocityUtils
         }
         else if (template.contains("model.ts.vm"))
         {
-            fileName = StringUtils.format("{}/api/{}/model/{}.ts", vuePath, moduleName, businessName);
+            fileName = StringUtils.format("{}/api/{}/model/{}Model.ts", vuePath, moduleName, businessName);
+        }
+        else if (template.contains("AuData.vue.vm")) {
+            fileName = StringUtils.format("{}/views/{}/{}/components/AuData.vue", vuePath, moduleName, businessName);
         }
         else if (template.contains("index.vue.vm"))
         {
