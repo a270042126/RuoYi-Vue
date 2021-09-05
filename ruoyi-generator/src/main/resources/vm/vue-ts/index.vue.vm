@@ -1,5 +1,5 @@
 <template>
-  <PageWrapper contentClass="flex items-start">
+  <PageWrapper v-loading="loading" contentClass="flex items-start">
     <card class="my-card">
       <Form :model="queryParams" ref="formRef" layout="horizontal" class="m-form">
 #foreach($column in $columns)
@@ -69,23 +69,46 @@
         <a-button class="ml-4" @click="resetQuery">重置</a-button>
       </Form>
       <div class="flex mb-4 mt-2">
-        <a-button type="primary" class="mr-4" @click="handleEdit()">
+        <a-button
+          v-if="hasPermission('${moduleName}:${businessName}:add')"
+          type="primary"
+          class="mr-4"
+          @click="handleEdit()"
+        >
           <Icon icon="ant-design:file-add-outlined" />添加</a-button
         >
-        <Popconfirm title="您确定删除吗" @confirm="handleDelete">
+        <Popconfirm
+          v-if="hasPermission('${moduleName}:${businessName}:remove')"
+          title="您确定删除吗"
+          @confirm="handleDelete"
+        >
           <a-button type="primary" danger><Icon icon="ic:outline-delete-outline" />删除</a-button>
         </Popconfirm>
-        <a-button type="primary" class="ml-4" @click="handleExport()">
+        <a-button
+          v-if="hasPermission('${moduleName}:${businessName}:export')"
+          type="primary"
+          class="ml-4"
+          @click="handleExport()"
+        >
           <Icon icon="ant-design:vertical-align-bottom-outlined" />导出</a-button
         >
       </div>
       <BasicTable @register="registerTable">
         <template #action="{ record }">
           <div>
-            <a-button type="link" class="text-btn" @click="handleEdit(record)">
+            <a-button
+              v-if="hasPermission('${moduleName}:${businessName}:edit')"
+              type="link"
+              class="text-btn"
+              @click="handleEdit(record)"
+            >
               <Icon icon="ant-design:edit-filled" />编辑
             </a-button>
-            <Popconfirm title="您确定删除吗" @confirm="handleDelete(record)">
+            <Popconfirm
+              v-if="hasPermission('${moduleName}:${businessName}:remove')"
+              title="您确定删除吗"
+              @confirm="handleDelete(record)"
+            >
               <a-button type="link" danger class="text-btn">
                 <Icon icon="ic:outline-delete-outline" />删除
               </a-button>
@@ -99,6 +122,7 @@
 </template>
 
 <script lang="ts">
+  import { usePermission } from '/@/hooks/web/usePermission';
   import { defineComponent, reactive, toRefs } from 'vue';
   import {
     Form,
@@ -175,6 +199,7 @@
       AuData,
     },
     setup() {
+      const { hasPermission } = usePermission();
       const myData = reactive<DataModel>({
         queryParams: {},
 #foreach ($column in $columns)
@@ -265,7 +290,7 @@
 
       const handleExport = () => {
         setLoading(true);
-        export${BusinessName}(myData.queryParams)(myData.queryParams)
+        export${BusinessName}(myData.queryParams)
           .then((res) => {
             setLoading(false);
             download(res);
@@ -304,6 +329,7 @@
       const { filterOption } = useSelect();
 #end
       return {
+        hasPermission,
         reload,
         handleExport,
         handleEdit,

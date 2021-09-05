@@ -47,11 +47,11 @@
 #set($select=1)
       <FormItem label="${comment}" name="${field}">
         <Select
-            v-model:value="form.${field}"
-            showSearch
-            allowClear
-            :filterOption="filterOption"
-            placeholder="请选择${comment}"
+          v-model:value="form.${field}"
+          showSearch
+          allowClear
+          :filterOption="filterOption"
+          placeholder="请选择${comment}"
         >
           <SelectOption value="">
             请选择字典生成
