@@ -219,6 +219,7 @@
 #end
       });
       const [register, { closeModal, changeLoading }] = useModalInner((data: ${BusinessName}Model) => {
+        formRef.value.resetFields();
         myData.form = {};
         const id = data.${pkColumn.javaField} ? data.${pkColumn.javaField} : null;
         if (id) {
