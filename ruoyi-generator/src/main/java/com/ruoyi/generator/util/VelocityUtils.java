@@ -142,11 +142,13 @@ public class VelocityUtils
         }
         else if (GenConstants.TPL_TREE.equals(tplCategory))
         {
-            templates.add("vm/vue/index-tree.vue.vm");
+            templates.add("vm/vue-ts/index.vue.vm");
+            // templates.add("vm/vue/index-tree.vue.vm");
         }
         else if (GenConstants.TPL_SUB.equals(tplCategory))
         {
-            templates.add("vm/vue/index.vue.vm");
+            templates.add("vm/vue-ts/index.vue.vm");
+           // templates.add("vm/vue/index.vue.vm");
             templates.add("vm/java/sub-domain.java.vm");
         }
         return templates;
