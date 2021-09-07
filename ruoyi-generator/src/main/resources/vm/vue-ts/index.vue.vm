@@ -202,6 +202,7 @@
       const { hasPermission } = usePermission();
       const myData = reactive<DataModel>({
         queryParams: {},
+        loading: false,
 #foreach ($column in $columns)
 #set($parentheseIndex=$column.columnComment.indexOf("（"))
 #if($parentheseIndex != -1)
