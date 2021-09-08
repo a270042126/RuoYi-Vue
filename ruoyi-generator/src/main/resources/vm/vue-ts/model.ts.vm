@@ -24,4 +24,4 @@ export interface ${BusinessName}Model {
 #end
 }
 
-export type ${BusinessName}ListModel = BasicFetchResult<${BusinessName}Model[]>;
+export type ${BusinessName}ListModel = BasicFetchResult<${BusinessName}Model>;

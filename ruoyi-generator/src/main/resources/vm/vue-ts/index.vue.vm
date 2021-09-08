@@ -177,6 +177,7 @@
   };
 
   export default defineComponent({
+    name: "${BusinessName}",
     components: {
       PageWrapper,
       Form,
@@ -256,6 +257,7 @@
         bordered: true,
         api: get${BusinessName}List,
         showTableSetting: true,
+        clickToRowSelect: false,
         rowSelection: { type: 'checkbox' },
         beforeFetch: () => {
 #foreach ($column in $columns)
