@@ -134,7 +134,7 @@
     SelectOption,
 #end
 #if($daterange)
-  RangePicker,
+    RangePicker,
 #end
 #if($datePicker)
     DatePicker,
@@ -152,9 +152,10 @@
 #if($select)
   import { useSelect } from '/@/hooks/component/useSelect';
   import { getDicts } from '/@/api/sys/dict';
-  import { selectDictLabel, DictDataModel } from '/@/utils'
+  import { DictDataModel } from '/@/api/sys/model/dictModel';
 #end
-  import { download } from '/@/utils';
+  import { download#if, ($select)selectDictLabel#end } from '/@/utils';
+  import { formatToDate } from '/@/utils/dateUtil';
 
   interface DataModel extends BasicData {
 #foreach ($column in $columns)
@@ -165,18 +166,18 @@
 #set($comment=$column.columnComment)
 #end
 #if(${column.dictType} != '')
-// $comment字典
-    ${column.javaField}Options: DictDataModel[],
+    // $comment字典
+    ${column.javaField}Options: DictDataModel[];
 #elseif($column.htmlType == "datetime" && $column.queryType == "BETWEEN")
 #set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
-// $comment时间范围
-    daterange${AttrName}: Date[],
+    // $comment时间范围
+    daterange${AttrName}: Date[];
 #end
 #end
-  };
+  }
 
   export default defineComponent({
-    name: "${BusinessName}",
+    name: '${BusinessName}',
     components: {
       PageWrapper,
       Form,
@@ -268,9 +269,9 @@
 #foreach ($column in $columns)
 #if($column.htmlType == "datetime" && $column.queryType == "BETWEEN")
 #set($AttrName=$column.javaField.substring(0,1).toUpperCase() + ${column.javaField.substring(1)})
-          if (null != myData.daterange${AttrName} && '' != myData.daterange${AttrName}) {
-            myData.queryParams.params['begin${AttrName}'] = myData.daterange${AttrName}[0];
-            myData.queryParams.params['end${AttrName}'] = myData.daterange${AttrName}[1];
+          if (myData.daterange${AttrName} && myData.daterange${AttrName}.length > 0) {
+            myData.queryParams.params['begin${AttrName}'] = formatToDate(myData.daterange${AttrName}[0]);
+            myData.queryParams.params['end${AttrName}'] = formatToDate(myData.daterange${AttrName}[1]);
           }
 #end
 #end
@@ -305,7 +306,7 @@
         reload({ page: 1 });
       };
       const handleDelete = (row: ${BusinessName}Model) => {
-        setLoading(false);
+        setLoading(true);
         const ids = row.${pkColumn.javaField} || getSelectRowKeys();
         del${BusinessName}(ids)
           .then(() => {
