@@ -56,7 +56,6 @@
         <FormItem label="${comment}" name="${column.javaField}">
           <DatePicker v-model:value="queryParams.${column.javaField}" />
         </FormItem>
-</el-form-item>
 #elseif($column.htmlType == "datetime" && $column.queryType == "BETWEEN")
 #set($daterange=true)
         <FormItem label="${comment}" name="${column.javaField}">
