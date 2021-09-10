@@ -32,30 +32,6 @@ public interface ${ClassName}Mapper extends BaseMapper<${ClassName}>
     public List<${ClassName}> select${ClassName}List(${ClassName} ${className});
 
     /**
-     * 新增${functionName}
-     * 
-     * @param ${className} ${functionName}
-     * @return 结果
-     */
-    public int insert${ClassName}(${ClassName} ${className});
-
-    /**
-     * 修改${functionName}
-     * 
-     * @param ${className} ${functionName}
-     * @return 结果
-     */
-    public int update${ClassName}(${ClassName} ${className});
-
-    /**
-     * 删除${functionName}
-     * 
-     * @param ${pkColumn.javaField} ${functionName}ID
-     * @return 结果
-     */
-    public int delete${ClassName}ById(${pkColumn.javaType} ${pkColumn.javaField});
-
-    /**
      * 批量删除${functionName}
      * 
      * @param ${pkColumn.javaField}s 需要删除的数据ID
