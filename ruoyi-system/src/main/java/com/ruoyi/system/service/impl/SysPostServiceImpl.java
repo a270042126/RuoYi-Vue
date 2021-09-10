@@ -162,7 +162,7 @@ public class SysPostServiceImpl implements ISysPostService
     @Override
     public int insertPost(SysPost post)
     {
-        return postMapper.insertPost(post);
+        return postMapper.insert(post);
     }
 
     /**

@@ -154,7 +154,7 @@
   import { getDicts } from '/@/api/sys/dict';
   import { DictDataModel } from '/@/api/sys/model/dictModel';
 #end
-  import { download#if, ($select)selectDictLabel#end } from '/@/utils';
+  import {#if($select) selectDictLabel,#end download  } from '/@/utils';
   import { formatToDate } from '/@/utils/dateUtil';
 
   interface DataModel extends BasicData {
