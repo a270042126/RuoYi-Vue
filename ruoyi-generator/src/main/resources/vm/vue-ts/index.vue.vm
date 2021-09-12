@@ -154,7 +154,7 @@
   import { getDicts } from '/@/api/sys/dict';
   import { DictDataModel } from '/@/api/sys/model/dictModel';
 #end
-  import {#if($select) selectDictLabel,#end download  } from '/@/utils';
+  import {#if($select) selectDictLabel,#end download } from '/@/utils';
   import { formatToDate } from '/@/utils/dateUtil';
 
   interface DataModel extends BasicData {
@@ -234,7 +234,14 @@
 #if($column.pk)
         { title: '${comment}', dataIndex: '${javaField}', width: 110 },
 #elseif($column.list && $column.htmlType == "datetime")
-        { title: '${comment}', dataIndex: '${javaField}', format: 'YYYY-MM-DD', width: 110 },
+        {
+          title: '${comment}',
+          dataIndex: '${javaField}',
+          format: (text: string) => {
+            return formatToDate(text);
+          },
+          width: 110
+        },
 #elseif($column.list && "" != $column.dictType)
         {
           title: '${comment}',
